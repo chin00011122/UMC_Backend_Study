@@ -1,29 +1,53 @@
-// src/main/java/.../service/BookService.java
 package com.umc.study.service;
 
-import com.umc.study.repository.BookRepository;
+import com.umc.study.dto.BookResponse;
+import com.umc.study.dto.CreateBookRequest;
+import com.umc.study.entity.Book;
+import com.umc.study.entity.Category;
+import com.umc.study.exception.CategoryNotFoundException;
+import com.umc.study.exception.DuplicateBookTitleException;
+import com.umc.study.repository.BookJpaRepository;
+import com.umc.study.repository.CategoryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
-@Service // 비즈니스 로직을 수행하는 메인 셰프 계층
+@Service
 @RequiredArgsConstructor
 public class BookService {
 
-    // 창고지기(Repository)를 생성자 주입으로 데려옵니다.
-    private final BookRepository bookRepository;
+    private final BookJpaRepository bookJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
 
-    public List<Map<String, Object>> getAllBooks() {
-        // 지금은 별도 가공 없이 창고지기가 가져온 도서 목록을 그대로 반환합니다.
-        return bookRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<BookResponse> getBooks(String keyword) {
+        List<Book> books = (keyword == null || keyword.isBlank())
+                ? bookJpaRepository.findAllByOrderByBookIdDesc()
+                : bookJpaRepository.findAllByTitleContainingOrderByBookIdDesc(keyword.trim());
+        return books.stream()
+                .map(BookResponse::from)
+                .toList();
     }
-    // BookService.java에 추가
-    public void createBook(Map<String, Object> body){
-        bookRepository.save(body);
+
+    @Transactional
+    public BookResponse createBook(CreateBookRequest request) {
+        if (bookJpaRepository.existsByTitle(request.title())) {
+            throw new DuplicateBookTitleException(request.title());
+        }
+
+        Category category = categoryJpaRepository.findById(request.categoryId())
+                .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
+
+        Book book = new Book(category, request.title(), request.description());
+        return BookResponse.from(bookJpaRepository.save(book));
     }
-    public List<Map<String, Object>> getBooksByCategory(Long categoryId) {
-        return bookRepository.findByCategoryId(categoryId);
+
+    @Transactional(readOnly = true)
+    public List<BookResponse> getBooksByCategory(Long categoryId) {
+        return bookJpaRepository.findAllByCategoryCategoryIdOrderByBookIdDesc(categoryId).stream()
+                .map(BookResponse::from)
+                .toList();
     }
 }

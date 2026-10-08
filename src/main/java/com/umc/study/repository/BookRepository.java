@@ -11,7 +11,6 @@ import java.util.Map;
 @Repository // 스프링 컨테이너에 "나 창고지기 부품이야!"라고 등록
 @RequiredArgsConstructor
 public class BookRepository {
-
     // 2단계에서 준비된 스프링의 DB 통신 도구(JdbcTemplate) 주입
     private final JdbcTemplate jdbcTemplate;
 
@@ -38,4 +37,5 @@ public class BookRepository {
         String sql = "SELECT * FROM book WHERE category_id = ?";
         return jdbcTemplate.queryForList(sql, categoryId);
     }
+
 }
