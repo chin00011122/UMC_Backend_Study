@@ -5,7 +5,7 @@ Spring Boot 3.5 / Java 21 프로젝트입니다. `member`, `rating` 테이블의
 ## 로컬 실행
 
 1. MySQL에서 `src/main/resources/db/schema.sql`을 실행합니다. 이 스크립트는 `umc_movie` 데이터베이스, 세 테이블, 테스트용 회원·평점 데이터를 만듭니다.
-2. IntelliJ Run Configuration의 Environment variables에 `DB_PASSWORD=본인_MySQL_비밀번호`를 설정합니다. 필요하면 `DB_USER`와 `DB_URL`도 지정할 수 있습니다.
+2. IntelliJ Run Configuration의 Environment variables에 `DB_PASSWORD=본인_MySQL_비밀번호`를 설정합니다. 기본 사용자 이름은 `codex_writer`이며, 다른 계정을 쓸 때만 `DB_USER`를 지정합니다. `mysql_config_editor`의 login-path는 `mysql` 명령줄에서만 사용되므로 Spring JDBC에는 별도로 `DB_PASSWORD` 환경 변수가 필요합니다. 비밀번호를 코드나 설정 파일에 적지 마세요. 필요하면 `DB_URL`도 지정할 수 있습니다.
 3. `MovieApplication`을 실행합니다. 앱은 `ddl-auto: validate`로 기존 스키마와 엔티티를 확인합니다.
 4. 기존 프론트 프로젝트 `D:/Dev/UMC/week2/front/umcine`를 `pnpm dev`로 실행합니다. Vite 출처는 `http://localhost:5173`이고, Spring CORS는 이 출처만 허용합니다.
 
